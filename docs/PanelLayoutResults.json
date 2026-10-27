@@ -1,0 +1,29 @@
+[
+  {
+    "case" : "normal",
+    "content_scrolls" : true,
+    "expansion_keeps_viewport" : true,
+    "height" : 560,
+    "inside_screen" : true,
+    "resize_while_open" : true,
+    "width" : 382
+  },
+  {
+    "case" : "compact",
+    "content_scrolls" : true,
+    "expansion_keeps_viewport" : true,
+    "height" : 360,
+    "inside_screen" : true,
+    "resize_while_open" : true,
+    "width" : 382
+  },
+  {
+    "case" : "narrow",
+    "content_scrolls" : true,
+    "expansion_keeps_viewport" : true,
+    "height" : 440,
+    "inside_screen" : true,
+    "resize_while_open" : true,
+    "width" : 320
+  }
+]

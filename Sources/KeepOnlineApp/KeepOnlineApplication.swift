@@ -6,6 +6,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private let model = AppModel()
     private var statusItem: NSStatusItem!
     private let popover = NSPopover()
+    private var panelController: NSHostingController<LivePanel>!
     private var observers: [any NSObjectProtocol] = []
     private var quitting = false
     private var smokeStagesPassed = false
@@ -23,7 +24,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         statusItem.button?.action = #selector(togglePanel)
         popover.behavior = .transient
         popover.delegate = self
-        popover.contentViewController = NSHostingController(rootView: LivePanel(model: model, quit: { [weak self] in self?.requestQuit() }))
+        panelController = NSHostingController(rootView: makePanel(size: PanelLayout.preferredSize))
+        PanelLayout.apply(PanelLayout.preferredSize, to: panelController, popover: popover)
+        for name in [NSApplication.didChangeScreenParametersNotification, NSWindow.didChangeScreenNotification] {
+            NotificationCenter.default.addObserver(self, selector: #selector(screenGeometryChanged), name: name, object: nil)
+        }
         model.changed = { [weak self] in self?.refreshIndicator() }
         refreshIndicator()
         observeWorkspace()
@@ -105,8 +110,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
     private func showPanel() {
         guard let button = statusItem?.button else { return }
-        model.setPanelVisible(true)
-        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        resizePanel()
+        popover.show(relativeTo: button.bounds, of: button, preferredEdge: PanelLayout.preferredEdge(for: button))
+        model.setPanelVisible(popover.isShown)
+    }
+    private func makePanel(size: NSSize) -> LivePanel {
+        LivePanel(model: model, size: size, quit: { [weak self] in self?.requestQuit() })
+    }
+    private func resizePanel() {
+        guard let button = statusItem?.button else { return }
+        let size = PanelLayout.contentSize(for: button)
+        if panelController.rootView.size != size { panelController.rootView = makePanel(size: size) }
+        PanelLayout.apply(size, to: panelController, popover: popover)
+    }
+    @objc private func screenGeometryChanged(_ notification: Notification) {
+        if popover.isShown { resizePanel() }
     }
     func popoverDidClose(_ notification: Notification) { model.setPanelVisible(false) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -153,14 +171,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             FileHandle.standardOutput.write(Data("SMOKE_PASS: startup, active indicator, release, idle indicator, graceful quit\n".utf8))
         }
         for observer in observers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
 private struct LivePanel: View {
     @ObservedObject var model: AppModel
+    let size: NSSize
     let quit: () -> Void
+    @State private var showOptions = false
+    @State private var showHelp = false
     var body: some View {
-        PanelView(state: model.panel, duration: $model.duration, keepDiskActive: $model.keepDiskActive,
+        PanelView(state: model.panel, viewportSize: size, duration: $model.duration, keepDiskActive: $model.keepDiskActive,
+                  showOptions: $showOptions, showHelp: $showHelp,
                   toggle: model.toggleSession, setLogin: model.setLoginEnabled,
                   openLoginSettings: model.openLoginSettings, quit: quit)
     }
@@ -200,6 +223,7 @@ enum KeepOnlineApplication {
             state.detail = "屏幕可以熄灭。合盖、手动睡眠和系统电源策略仍然有效。"
         }
         let root = PanelView(state: state, duration: .constant(.hour), keepDiskActive: .constant(false),
+                             showOptions: .constant(false), showHelp: .constant(false),
                              toggle: {}, setLogin: { _ in }, openLoginSettings: {}, quit: {})
         let view = NSHostingView(rootView: root)
         let size = view.fittingSize

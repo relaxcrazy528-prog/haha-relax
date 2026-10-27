@@ -1,6 +1,14 @@
 # Verification record — architecture 3.0 implementation preview
 
-Local date: 2026-10-26. Host reports macOS 26.4 (25E246). Delivered application: arm64, version 2.0.0, build 30; macOS 14 deployment target. Minimum deployment target is not a claim of tested support on every older OS or on Intel.
+Core verification date: 2026-10-26; panel correction: 2026-10-27. Host reports macOS 26.4 (25E246). Delivered application: arm64, version 2.0.1, build 31; macOS 14 deployment target. Minimum deployment target is not a claim of tested support on every older OS or on Intel.
+
+## 2.0.1 panel correction
+
+- The previous content had a fixed width and an unconstrained height, so the popover could exceed the usable screen area. The panel now has a bounded viewport and a vertical scroll view; expanding content does not grow the outer window.
+- Sizing uses the anchor window's screen, its current `visibleFrame`, and AppKit points. It reserves space for the popover chrome and Dock, and updates an open panel when screen geometry changes.
+- `scripts/check-panel-layout.py` passed four geometry cases, including offset display coordinates, plus native popovers at 382×560, 382×360, and 320×440 points. Default and live expanded options/help states stayed inside the usable screen, the expanded content scrolled from top to bottom, and reducing the open viewport to 300 points kept it inside the screen. Results: [PanelLayoutResults.json](PanelLayoutResults.json).
+- The desktop fixture uses a dedicated top-edge anchor and the production view/sizing code. It does not certify every physical display or replace a complete mouse/keyboard/VoiceOver test. The external UI automation service was unavailable during this correction.
+- Version 2.0.1 production build, bundle validation and signature verification passed. Its actual application smoke check passed startup, active indicator, release, idle indicator, and graceful process exit after the UI change.
 
 ## Passed locally
 

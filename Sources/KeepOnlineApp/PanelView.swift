@@ -62,18 +62,26 @@ struct PanelPresentation {
 
 struct PanelView: View {
     let state: PanelPresentation
+    var viewportSize: NSSize = PanelLayout.preferredSize
     @Binding var duration: SessionLength
     @Binding var keepDiskActive: Bool
+    @Binding var showOptions: Bool
+    @Binding var showHelp: Bool
     let toggle: () -> Void
     let setLogin: (Bool) -> Void
     let openLoginSettings: () -> Void
     let quit: () -> Void
-    @State private var showOptions = false
-    @State private var showHelp = false
 
     private var card: Color { Color(nsColor: .controlBackgroundColor) }
 
     var body: some View {
+        ScrollView(.vertical) { content }
+            .scrollBounceBehavior(.basedOnSize)
+            .frame(width: viewportSize.width, height: viewportSize.height)
+            .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 17) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -227,8 +235,7 @@ struct PanelView: View {
             }
         }
         .padding(20)
-        .frame(width: 382)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func environmentLabel(_ text: String, icon: String, warning: Bool = false) -> some View {

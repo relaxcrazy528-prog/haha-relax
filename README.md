@@ -7,6 +7,7 @@ A small native macOS menu-bar app. Red means this app is keeping the Mac awake; 
 ## 功能与边界
 
 - 原生菜单栏与控制面板，支持深浅外观、文字状态及辅助功能标签。
+- 面板按菜单栏图标所在屏幕的可用区域限高；小屏幕和展开内容通过内部滚动访问。
 - 30 分钟、1 小时、2 小时或手动结束；屏幕可以正常熄灭。
 - 可选磁盘防空闲请求，默认关闭；不通过写磁盘保活。
 - 系统托管短期电源请求，到期释放；健康界面每 30 秒续期，90 秒内没有续期则到期。不自动重建已过期请求。
@@ -61,9 +62,12 @@ swift build --product LeaseProbe
 python3 scripts/verify-system-leases.py "$(swift build --show-bin-path)/LeaseProbe"
 python3 -m unittest discover -s Research -p 'test_*.py'
 python3 scripts/check-app-smoke.py build/保持在线.app
+python3 scripts/check-panel-layout.py
 ```
 
 集成测试核验普通、磁盘请求，挂起所有者后的系统到期，过期请求无法续期，以及进程强制退出的清理。它不是合盖、温度保护或长时间网络测试。`LeaseProbe` 仅是内部测试夹具，不随 `.app` 分发。
+
+面板布局检查需要可用的 macOS 桌面，单独编译生产视图与布局策略，在原生弹出窗口中验证默认、小尺寸及展开后的边界和滚动。它不创建电源请求，也不修改登录启动设置；虚拟屏幕坐标检查不代表物理多显示器认证。
 
 ## 工程结构
 
