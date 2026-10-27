@@ -1,0 +1,19 @@
+# Inactive template. Copy to .github/workflows/ after separately authorizing
+# workflow changes. The source-only publication does not enable Actions.
+name: Build and test
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Core and input tests
+        run: swift test
+      - name: Package application
+        run: bash scripts/build-app.sh
+      - name: Read-only research privacy tests
+        run: python3 -m unittest discover -s Research -p 'test_*.py'

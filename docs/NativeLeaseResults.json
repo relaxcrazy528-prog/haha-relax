@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "kind": "systemIdle",
+      "result": "pass",
+      "suspended_owner_expiry": true,
+      "late_renewal_did_not_recreate": true
+    },
+    {
+      "kind": "diskIdle",
+      "result": "pass",
+      "suspended_owner_expiry": true,
+      "late_renewal_did_not_recreate": true
+    },
+    {
+      "forced_process_exit_cleanup": "pass"
+    }
+  ],
+  "global_power_preferences_modified": false
+}

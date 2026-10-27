@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "collected_at_utc": "2026-10-27T03:43:52+00:00",
+  "collection_mode": "read_only",
+  "os": {
+    "product_version": "26.4",
+    "build": "25E246",
+    "kernel_release": null
+  },
+  "hardware": {
+    "model_identifier": null,
+    "architecture": null,
+    "physical_cores": null,
+    "logical_cores": null
+  },
+  "root_domain_observation": {
+    "properties": {},
+    "unavailable_properties": [
+      "AppleClamshellState",
+      "AppleClamshellCausesSleep",
+      "SleepDisabled"
+    ]
+  },
+  "errors": [
+    {
+      "source": "sysctl.kern.osrelease",
+      "reason": "command_failed",
+      "exit_code": 1
+    },
+    {
+      "source": "sysctl.hw.model",
+      "reason": "command_failed",
+      "exit_code": 1
+    },
+    {
+      "source": "sysctl.hw.machine",
+      "reason": "command_failed",
+      "exit_code": 1
+    },
+    {
+      "source": "sysctl.hw.physicalcpu",
+      "reason": "command_failed",
+      "exit_code": 1
+    },
+    {
+      "source": "sysctl.hw.logicalcpu",
+      "reason": "command_failed",
+      "exit_code": 1
+    },
+    {
+      "source": "ioreg.root_domain",
+      "reason": "command_failed",
+      "exit_code": 1
+    }
+  ],
+  "lid_capability_verdict": "not_validated"
+}
